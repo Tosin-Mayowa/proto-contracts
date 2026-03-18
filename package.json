@@ -1,0 +1,11 @@
+{
+  "name": "@myapp/proto-contracts",
+  "version": "1.0.0",
+  "description": "Shared gRPC proto contracts",
+  "main": "index.js",
+  "files": [
+    "proto/**"
+  ],
+  "keywords": [],
+  "license": "PRIVATE"
+}
