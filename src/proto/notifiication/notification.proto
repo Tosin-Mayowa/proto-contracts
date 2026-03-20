@@ -2,38 +2,34 @@ syntax = "proto3";
 
 package notification;
 
-enum UserRole {
-  USER_ROLE_UNSPECIFIED = 0;
-  USER_ROLE_STUDENT = 1;
-  USER_ROLE_INSTRUCTOR = 2;
-  USER_ROLE_ADMIN = 3;
-}
-
-
 service NotificationService {
-
   rpc SendWelcomeEmail (WelcomeEmailRequest) returns (NotificationResponse);
-  
   rpc SendStudentWelcomeEmail (StudentWelcomeEmailRequest) returns (NotificationResponse);
-
   rpc SendInstructorWelcomeEmail (InstructorWelcomeEmailRequest) returns (NotificationResponse);
-
-  rpc SendPasswordReset (PasswordResetRequest) returns (NotificationResponse);
-  rpc SendLoginAlert (LoginAlertRequest) returns (NotificationResponse);
   rpc SendEmailVerification (EmailVerificationRequest) returns (NotificationResponse);
-
+  rpc SendLoginAlert (LoginAlertRequest) returns (NotificationResponse);
+  rpc SendPasswordReset (PasswordResetRequest) returns (NotificationResponse);
   rpc SendAccountStatusEmail (AccountStatusEmailRequest) returns (NotificationResponse);
-  
   rpc SendSms (SmsRequest) returns (NotificationResponse);
 }
+
+
+
+message NotificationResponse {
+  bool success = 1;
+  string message = 2;
+  string notification_id = 3;
+}
+
+
 
 message WelcomeEmailRequest {
   string user_id = 1;
   string email = 2;
   string firstname = 3;
-  UserRole role = 4;
- 
+  string role = 4;
 }
+
 
 
 message StudentWelcomeEmailRequest {
@@ -41,14 +37,14 @@ message StudentWelcomeEmailRequest {
   string email = 2;
   string firstname = 3;
   string lastname = 4;
-  string matric_no = 5;
-  string level = 6;
+  optional string matric_no = 5;
+  optional string level = 6;
   optional string department_id = 7;
   optional string department_name = 8;
   optional string course_id = 9;
   optional string course_name = 10;
-  
 }
+
 
 
 message InstructorWelcomeEmailRequest {
@@ -58,19 +54,24 @@ message InstructorWelcomeEmailRequest {
   string lastname = 4;
   optional string course_id = 5;
   optional string course_name = 6;
-  // ↑ instructor's assigned course shown in welcome email
   optional string department_id = 7;
   optional string department_name = 8;
 }
 
- 
-message PasswordResetRequest {
+
+message EmailVerificationRequest {
   string user_id = 1;
   string email = 2;
-  string reset_token = 3;
-  string firstname = 4;
-  // ↑ FIXED: was first_name
+  string firstname = 3;
+  string verification_code = 4;
+  // ↑ CHANGED — was verification_token (UUID link)
+  // now verification_code (6 digit code e.g. '483920')
+  // notification-service displays this in the email body
+  // user reads it and types it on the frontend
+  string role = 5;
 }
+
+
 
 message LoginAlertRequest {
   string user_id = 1;
@@ -79,18 +80,17 @@ message LoginAlertRequest {
   string user_agent = 4;
   string login_time = 5;
   optional string firstname = 6;
-  
 }
 
 
-message EmailVerificationRequest {
+
+message PasswordResetRequest {
   string user_id = 1;
   string email = 2;
-  string verification_token = 3;
+  string reset_token = 3;
   string firstname = 4;
-  UserRole role = 5;
-
 }
+
 
 
 message AccountStatusEmailRequest {
@@ -98,12 +98,7 @@ message AccountStatusEmailRequest {
   string email = 2;
   string firstname = 3;
   bool is_active = 4;
-  // ↑ true = account activated email
-  //   false = account deactivated email
-  // notification-service uses this single boolean to pick the right template
   optional string reason = 5;
-  // ↑ optional reason admin gave for deactivation
-  // e.g. "Account suspended due to policy violation"
 }
 
 
@@ -111,12 +106,6 @@ message SmsRequest {
   string phone_number = 1;
   string message = 2;
   string user_id = 3;
- 
 }
 
 
-message NotificationResponse {
-  bool success = 1;
-  string message = 2;
-  string notification_id = 3;
-}

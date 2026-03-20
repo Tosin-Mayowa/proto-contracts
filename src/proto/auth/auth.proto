@@ -10,12 +10,57 @@ enum UserRole {
 }
 
 service AuthService {
-  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
   rpc Login (LoginRequest) returns (LoginResponse);
   rpc Register (RegisterRequest) returns (RegisterResponse);
+  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse);
   rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse);
   rpc Logout (LogoutRequest) returns (LogoutResponse);
+  rpc VerifyEmail (VerifyEmailRequest) returns (VerifyEmailResponse);
+
+  rpc ResendVerificationCode (ResendVerificationCodeRequest) returns (ResendVerificationCodeResponse);
+
 }
+
+
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+  optional string ip_address = 3;
+  optional string user_agent = 4;
+}
+
+message LoginResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int32 expires_in = 3;
+  UserPayload user = 4;
+}
+
+message RegisterRequest {
+  string firstname = 1;
+  string lastname = 2;
+  string email = 3;
+  string password = 4;
+  UserRole role = 5;
+  optional string matric_no = 6;
+  optional int32 no_of_trials = 7;
+  optional bool is_active = 8;
+  optional string department_id = 9;
+  optional string course_id = 10;
+  optional string level = 11;
+}
+
+message RegisterResponse {
+  string user_id = 1;
+  string email = 2;
+  string firstname = 3;
+  string lastname = 4;
+  string role = 5;
+  string message = 6;
+}
+
+
 
 message ValidateTokenRequest {
   string token = 1;
@@ -25,60 +70,10 @@ message ValidateTokenResponse {
   bool valid = 1;
   string user_id = 2;
   string email = 3;
-  repeated string roles = 4;
-}
-
-message LoginRequest {
-  string email = 1;
-  string password = 2;
-  string ip_address = 3;
-  string user_agent = 4;
-}
-
-message LoginResponse {
-  string access_token = 1;
-  string refresh_token = 2;
-  int64 expires_in = 3;
-  UserPayload user = 4;
+  repeated UserRole roles = 4;
 }
 
 
-
-
-
-message RegisterRequest {
-  
-  string firstname = 1;
-  string lastname = 2;
-  string email = 3;
-  string password = 4;
-
-
-  UserRole role = 5;
-
-  optional string matric_no = 6;
-
-  optional int32 no_of_trials = 7;
- 
-  optional bool is_active = 8;
-
-
-  optional string department_id = 9;
- 
-
-  optional string course_id = 10;
-
-}
-
-message RegisterResponse {
-  string user_id = 1;
-  string email = 2;
-  string firstname = 3;
-  string lastname = 4;
-  UserRole role = 5;
-  string message = 6;
- 
-}
 
 message RefreshTokenRequest {
   string refresh_token = 1;
@@ -87,8 +82,10 @@ message RefreshTokenRequest {
 message RefreshTokenResponse {
   string access_token = 1;
   string refresh_token = 2;
-  int64 expires_in = 3;
+  int32 expires_in = 3;
 }
+
+
 
 message LogoutRequest {
   string user_id = 1;
@@ -99,10 +96,47 @@ message LogoutResponse {
   bool success = 1;
 }
 
+
+
+message VerifyEmailRequest {
+  string email = 1;
+ 
+  string code = 2;
+
+}
+
+message VerifyEmailResponse {
+  bool success = 1;
+  string message = 2;
+ 
+}
+
+
+
+message ResendVerificationCodeRequest {
+  string email = 1;
+  // ↑ email address to send the new code to
+}
+
+message ResendVerificationCodeResponse {
+  bool success = 1;
+  string message = 2;
+
+}
+
+
+
 message UserPayload {
   string id = 1;
   string email = 2;
-  string firstname = 3;   // ← was first_name
-  string lastname = 4;    // ← was last_name
-  repeated string roles = 5;
+  string firstname = 3;
+  string lastname = 4;
+  repeated UserRole roles = 5;
+  UserRole role = 6;
+  optional string matric_no = 7;
+  optional string department_id = 8;
+  optional string course_id = 9;
+  bool is_active = 10;
+  bool email_verified = 11;
+
 }
